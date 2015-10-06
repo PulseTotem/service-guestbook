@@ -35,10 +35,10 @@ class GuestBookClientNamespaceManager extends NamespaceManager {
 	takeControl(callSocketId : any) {
 		var self = this;
 
-		var callNamespaceManager = self.server().retrieveNamespaceManagerFromSocketId(callSocketId);
+		var callNamespaceManager = self.server().retrieveNamespaceManagerFromSocketId(callSocketId.callSocketId);
 
 		if(callNamespaceManager == null) {
-			self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId + "' doesn't exist."));
+			self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId.callSocketId + "' doesn't exist."));
 		} else {
 
 			var newSession : Session = callNamespaceManager.newSession(self);
