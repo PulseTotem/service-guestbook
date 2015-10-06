@@ -6,6 +6,7 @@
 /// <reference path="../t6s-core/core-backend/scripts/Logger.ts" />
 
 /// <reference path="./GuestBookNamespaceManager.ts" />
+/// <reference path="./GuestBookClientNamespaceManager.ts" />
 
 
 
