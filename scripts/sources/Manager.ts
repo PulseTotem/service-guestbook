@@ -5,6 +5,9 @@
 /// <reference path="../../t6s-core/core-backend/scripts/Logger.ts" />
 /// <reference path="../../t6s-core/core-backend/scripts/server/SourceItf.ts" />
 
+/// <reference path="../../t6s-core/core-backend/t6s-core/core/scripts/infotype/Cmd.ts" />
+/// <reference path="../../t6s-core/core-backend/t6s-core/core/scripts/infotype/CmdList.ts" />
+
 /// <reference path="../GuestBookNamespaceManager.ts" />
 
 var uuid : any = require('node-uuid');
