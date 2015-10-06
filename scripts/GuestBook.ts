@@ -40,6 +40,8 @@ class GuestBook extends SourceServer {
         var self = this;
 
         this.addNamespace("GuestBook", GuestBookNamespaceManager);
+
+		this.addNamespace("GuestBookClient", GuestBookClientNamespaceManager);
     }
 }
 

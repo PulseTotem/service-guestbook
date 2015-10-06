@@ -2,9 +2,17 @@
  * @author Christian Brel <christian@pulsetotem.fr, ch.brel@gmail.com>
  */
 
+/// <reference path="../t6s-core/core-backend/scripts/session/SessionSourceNamespaceManager.ts" />
+
 /// <reference path="./sources/Manager.ts" />
 
-class GuestBookNamespaceManager extends SourceNamespaceManager {
+/**
+ * Represents the PulseTotem GuestBook's SessionSourceNamespaceManager for each call from PulseTotem's Client.
+ *
+ * @class GuestBookNamespaceManager
+ * @extends SessionSourceNamespaceManager
+ */
+class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
     /**
      * Constructor.
