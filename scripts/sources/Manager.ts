@@ -34,8 +34,6 @@ class Manager extends SourceItf {
 	 * @method run
 	 */
 	public run() {
-		var self = this;
-
 		var cmd : Cmd = new Cmd(uuid.v1());
 		cmd.setDurationToDisplay(parseInt(this.getParams().InfoDuration));
 		cmd.setCmd("Wait");
@@ -45,8 +43,6 @@ class Manager extends SourceItf {
 
 		var list : CmdList = new CmdList(uuid.v1());
 		list.addCmd(cmd);
-
-		Logger.debug(list);
 
 		this.getSourceNamespaceManager().sendNewInfoToClient(list);
 	}

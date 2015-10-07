@@ -3,7 +3,9 @@
  */
 
 /// <reference path="../t6s-core/core-backend/scripts/server/NamespaceManager.ts" />
+/// <reference path="../t6s-core/core-backend/scripts/session/SessionNamespaceManagerItf.ts" />
 /// <reference path="../t6s-core/core-backend/scripts/session/Session.ts" />
+/// <reference path="../t6s-core/core-backend/scripts/session/SessionStatus.ts" />
 
 /// <reference path="./sources/Manager.ts" />
 
@@ -12,8 +14,9 @@
  *
  * @class GuestBookClientNamespaceManager
  * @extends NamespaceManager
+ * @implements SessionNamespaceManagerItf
  */
-class GuestBookClientNamespaceManager extends NamespaceManager {
+class GuestBookClientNamespaceManager extends NamespaceManager implements SessionNamespaceManagerItf {
 
 	/**
 	 * Constructor.
@@ -45,5 +48,26 @@ class GuestBookClientNamespaceManager extends NamespaceManager {
 
 			self.socket.emit("ControlSession", self.formatResponse(true, newSession));
 		}
+	}
+
+	/**
+	 * Lock the control of the Screen for the Session in param.
+	 *
+	 * @method lockControl
+	 * @param {Session} session - Session which takes the control of the Screen.
+	 */
+	lockControl(session : Session) {
+		var self = this;
+
+		self.socket.emit("LockedControl", self.formatResponse(true, session));
+	}
+
+	/**
+	 * Method called when socket is disconnected.
+	 *
+	 * @method onClientDisconnection
+	 */
+	onClientDisconnection() {
+		this.onDisconnection();
 	}
 }
