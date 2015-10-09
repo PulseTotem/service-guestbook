@@ -8,6 +8,7 @@
 /// <reference path="../t6s-core/core-backend/scripts/session/SessionStatus.ts" />
 
 /// <reference path="./sources/Manager.ts" />
+/// <reference path="./GuestBookNamespaceManager.ts" />
 
 /**
  * Represents the PulseTotem GuestBook's NamespaceManager to manage connections from mobile clients.
@@ -19,6 +20,14 @@
 class GuestBookClientNamespaceManager extends NamespaceManager implements SessionNamespaceManagerItf {
 
 	/**
+	 * Call NamespaceManager.
+	 *
+	 * @property _callNamespaceManager
+	 * @type GuestBookNamespaceManager
+	 */
+	private _callNamespaceManager : GuestBookNamespaceManager;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -26,7 +35,11 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	 */
 	constructor(socket : any) {
 		super(socket);
+
+		this._callNamespaceManager = null;
+
 		this.addListenerToSocket('TakeControl', function(callSocketId : any, self : GuestBookClientNamespaceManager) { self.takeControl(callSocketId); });
+		this.addListenerToSocket('NewContent', function(drawContent : any, self : GuestBookClientNamespaceManager) { self.drawContent(drawContent); });
 	}
 
 	/**
@@ -44,9 +57,27 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 			self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId.callSocketId + "' doesn't exist."));
 		} else {
 
+			self._callNamespaceManager = callNamespaceManager;
+
 			var newSession : Session = callNamespaceManager.newSession(self);
 
 			self.socket.emit("ControlSession", self.formatResponse(true, newSession));
+		}
+	}
+
+	/**
+	 * Receive new content to display on the Client screen.
+	 *
+	 * @method drawContent
+	 * @param {Object} drawContent - A JSON object with drawContent.
+	 */
+	drawContent(drawContent : any) {
+		var self = this;
+
+		if(self._callNamespaceManager != null) {
+			var newDrawContent = drawContent.drawContent;
+
+			self._callNamespaceManager.newDrawContent(newDrawContent);
 		}
 	}
 

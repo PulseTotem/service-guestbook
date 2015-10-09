@@ -52,4 +52,33 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
 		self.sendNewInfoToClient(list);
 	}
+
+	/**
+	 * Send new draw content to the Screen.
+	 *
+	 * @method newDrawContent
+	 * @param {any} drawContent - DrawContent in a base64 encoded version.
+	 */
+	newDrawContent(drawContent : any) {
+		var self = this;
+
+		var activeSession : Session = self.getSessionManager().getActiveSession();
+
+		if(activeSession != null) {
+			var cmd:Cmd = new Cmd(activeSession.id());
+			cmd.setPriority(InfoPriority.HIGH);
+			cmd.setDurationToDisplay(3600);
+			cmd.setCmd("NewDrawContent");
+			var args:Array<string> = new Array<string>();
+			args.push(self.socket.id);
+			args.push(JSON.stringify(activeSession));
+			args.push(drawContent);
+			cmd.setArgs(args);
+
+			var list:CmdList = new CmdList(activeSession.id());
+			list.addCmd(cmd);
+
+			self.sendNewInfoToClient(list);
+		}
+	}
 }
