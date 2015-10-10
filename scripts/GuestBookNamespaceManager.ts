@@ -98,52 +98,71 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 			if(blanckErr) {
 				Logger.error("Error when creating file with lwip" + JSON.stringify(blanckErr));
 			} else {
+				var localBackground = GuestBook.upload_directory + "/testfdsophia/utils/background.jpg";
+				var localWatermark = GuestBook.upload_directory + "/testfdsophia/utils/watermark.png";
 
-				lwip.open("http://cdn.the6thscreen.fr/guestbook/background.jpg", function(backgroundErr, backgroundImg) {
-					if(backgroundErr) {
-						Logger.error("Error when retrieving background file with lwip" + JSON.stringify(backgroundErr));
-					} else {
-						blankImage.paste(0, 0, backgroundImg, function(addBackgroundErr, imgWithBackground) {
-							if(addBackgroundErr) {
-								Logger.error("Error when paste background with lwip" + JSON.stringify(addBackgroundErr));
-							} else {
-								var drawContentImg = new Buffer(drawContent, 'base64');
-								lwip.open(drawContentImg, 'png', function(drawContentErr, drawContentLwipImg) {
-									if(drawContentErr) {
-										Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
-									} else {
-										imgWithBackground.paste((1920 - drawContentLwipImg.width()) / 2, (1080 - drawContentLwipImg.height()) / 2, drawContentLwipImg, function(addDrawContentErr, imgWithDrawContent) {
-											if(addDrawContentErr) {
-												Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
-											} else {
-												lwip.open("http://cdn.the6thscreen.fr/guestbook/watermark.png", function(watermarkErr, watermarkImg) {
-													if(watermarkErr) {
-														Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
-													} else {
-														imgWithDrawContent.paste(0, 0, watermarkImg, function(finishErr, finishImg) {
-															if(finishErr) {
-																Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
+				var failDownloadBackground = function (error) {
+					Logger.error("Error when retrieving the background picture. Error: "+JSON.stringify(error));
+				};
+
+				var successDownloadBackground = function () {
+
+					lwip.open(localBackground, function (backgroundErr, backgroundImg) {
+						if (backgroundErr) {
+							Logger.error("Error when retrieving background file with lwip" + JSON.stringify(backgroundErr));
+						} else {
+							blankImage.paste(0, 0, backgroundImg, function (addBackgroundErr, imgWithBackground) {
+								if (addBackgroundErr) {
+									Logger.error("Error when paste background with lwip" + JSON.stringify(addBackgroundErr));
+								} else {
+									var drawContentImg = new Buffer(drawContent, 'base64');
+									lwip.open(drawContentImg, 'png', function (drawContentErr, drawContentLwipImg) {
+										if (drawContentErr) {
+											Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
+										} else {
+											imgWithBackground.paste((1920 - drawContentLwipImg.width()) / 2, (1080 - drawContentLwipImg.height()) / 2, drawContentLwipImg, function (addDrawContentErr, imgWithDrawContent) {
+												if (addDrawContentErr) {
+													Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
+												} else {
+													var failDownloadWatermark = function (error) {
+														Logger.error("Error when retrieving the watermark picture. Error: "+JSON.stringify(error));
+													};
+
+													var successDownloadWatermark = function() {
+														lwip.open(localWatermark, function (watermarkErr, watermarkImg) {
+															if (watermarkErr) {
+																Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
 															} else {
-																var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + ".png";
-																finishImg.writeFile(newFileUrl, function (errWriteW) {
-																	if (errWriteW) {
-																		Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
+																imgWithDrawContent.paste(0, 0, watermarkImg, function (finishErr, finishImg) {
+																	if (finishErr) {
+																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
-																		Logger.info("Success writing file ! => " + newFileUrl);
+																		var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + ".png";
+																		finishImg.writeFile(newFileUrl, function (errWriteW) {
+																			if (errWriteW) {
+																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
+																			} else {
+																				Logger.info("Success writing file ! => " + newFileUrl);
+																			}
+																		});
 																	}
 																});
 															}
 														});
-													}
-												});
-											}
-										});
-									}
-								});
-							}
-						});
-					}
-				});
+													};
+
+													GuestBook.downloadFile("http://cdn.the6thscreen.fr/guestbook/watermark.png", localWatermark, successDownloadWatermark, failDownloadWatermark);
+												}
+											});
+										}
+									});
+								}
+							});
+						}
+					});
+				};
+
+				GuestBook.downloadFile("http://cdn.the6thscreen.fr/guestbook/background.jpg", localBackground, successDownloadBackground, failDownloadBackground);
 			}
 		};
 

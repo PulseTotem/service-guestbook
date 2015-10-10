@@ -8,7 +8,8 @@
 /// <reference path="./GuestBookNamespaceManager.ts" />
 /// <reference path="./GuestBookClientNamespaceManager.ts" />
 
-
+var request : any = require('request');
+var fs : any = require('fs');
 
 /**
  * Represents the PulseTotem GuestBook' Service.
@@ -50,6 +51,16 @@ class GuestBook extends SourceServer {
 
 		this.addNamespace("GuestBookClient", GuestBookClientNamespaceManager);
     }
+
+	static downloadFile(url, localpath, callbackSuccess, callbackError) {
+		request.head(url, function(err, res, body){
+			if (err) {
+				callbackError(err);
+			} else {
+				request(url).pipe(fs.createWriteStream(localpath)).on('close', callbackSuccess);
+			}
+		});
+	}
 }
 
 /**
