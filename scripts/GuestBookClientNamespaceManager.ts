@@ -40,6 +40,8 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 
 		this.addListenerToSocket('TakeControl', function(callSocketId : any, self : GuestBookClientNamespaceManager) { self.takeControl(callSocketId); });
 		this.addListenerToSocket('NewContent', function(drawContent : any, self : GuestBookClientNamespaceManager) { self.drawContent(drawContent); });
+		this.addListenerToSocket('SaveContent', function(drawContent : any, self : GuestBookClientNamespaceManager) { self.saveContent(drawContent); });
+
 	}
 
 	/**
@@ -82,6 +84,24 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	}
 
 	/**
+	 * Save Content and finish session.
+	 *
+	 * @method saveContent
+	 * @param {Object} drawContent - A JSON object with drawContent.
+	 */
+	saveContent(drawContent : any) {
+		var self = this;
+
+		if(self._callNamespaceManager != null) {
+			var newDrawContent = drawContent.drawContent;
+
+			self._callNamespaceManager.saveContent(newDrawContent);
+		}
+
+		self._callNamespaceManager.getSessionManager().finishActiveSession();
+	}
+
+	/**
 	 * Lock the control of the Screen for the Session in param.
 	 *
 	 * @method lockControl
@@ -91,6 +111,18 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 		var self = this;
 
 		self.socket.emit("LockedControl", self.formatResponse(true, session));
+	}
+
+	/**
+	 * Unlock the control of the Screen for the Session in param.
+	 *
+	 * @method unlockControl
+	 * @param {Session} session - Session which takes the control of the Screen.
+	 */
+	unlockControl(session : Session) {
+		var self = this;
+
+		self.socket.emit("UnlockedControl", self.formatResponse(true, session));
 	}
 
 	/**

@@ -81,4 +81,57 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 			self.sendNewInfoToClient(list);
 		}
 	}
+
+	/**
+	 * Save draw content and finish Session.
+	 *
+	 * @method saveContent
+	 * @param {any} drawContent - DrawContent in a base64 encoded version.
+	 */
+	saveContent(drawContent : any) {
+		var self = this;
+
+		/*var activeSession : Session = self.getSessionManager().getActiveSession();
+
+		if(activeSession != null) {
+			var cmd:Cmd = new Cmd(activeSession.id());
+			cmd.setPriority(InfoPriority.HIGH);
+			cmd.setDurationToDisplay(3600);
+			cmd.setCmd("NewDrawContent");
+			var args:Array<string> = new Array<string>();
+			args.push(self.socket.id);
+			args.push(JSON.stringify(activeSession));
+			args.push(drawContent);
+			cmd.setArgs(args);
+
+			var list:CmdList = new CmdList(activeSession.id());
+			list.addCmd(cmd);
+
+			self.sendNewInfoToClient(list);
+		}*/
+	}
+
+	/**
+	 * Unlock the control of the Screen for the Session in param.
+	 *
+	 * @method unlockControl
+	 * @param {Session} session - Session which takes the control of the Screen.
+	 */
+	unlockControl(session : Session) {
+		var self = this;
+
+		var cmd : Cmd = new Cmd(session.id());
+		cmd.setPriority(InfoPriority.HIGH);
+		cmd.setDurationToDisplay(3);
+		cmd.setCmd("FinishSession");
+		var args : Array<string> = new Array<string>();
+		args.push(self.socket.id);
+		args.push(JSON.stringify(session));
+		cmd.setArgs(args);
+
+		var list : CmdList = new CmdList(session.id());
+		list.addCmd(cmd);
+
+		self.sendNewInfoToClient(list);
+	}
 }
