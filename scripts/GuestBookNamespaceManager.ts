@@ -115,7 +115,10 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 								if (addBackgroundErr) {
 									Logger.error("Error when paste background with lwip" + JSON.stringify(addBackgroundErr));
 								} else {
-									var drawContentImg = new Buffer(drawContent, 'base64');
+									Logger.debug(drawContent);
+									var base64DrawContent = drawContent.replace(/^data:image\/png;base64,/, "");
+									Logger.debug(base64DrawContent);
+									var drawContentImg = new Buffer(base64DrawContent, 'base64');
 									lwip.open(drawContentImg, 'png', function (drawContentErr, drawContentLwipImg) {
 										if (drawContentErr) {
 											Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
