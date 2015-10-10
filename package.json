@@ -18,5 +18,8 @@
 		"grunt-mocha-istanbul": "2.4.0",
 	  	"mocha": "2.2.5",
 	  	"grunt-env": "0.4.4"
-	}
+	},
+    "dependencies": {
+      "lwip": "0.0.7"
+    }
 }

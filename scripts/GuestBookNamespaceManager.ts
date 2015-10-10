@@ -10,6 +10,9 @@
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/CmdList.ts" />
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/priorities/InfoPriority.ts" />
 
+var lwip : any = require('lwip');
+var moment : any = require('moment');
+
 /**
  * Represents the PulseTotem GuestBook's SessionSourceNamespaceManager for each call from PulseTotem's Client.
  *
@@ -90,6 +93,61 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 	 */
 	saveContent(drawContent : any) {
 		var self = this;
+
+		var blankImgCreated = function(blanckErr, blankImage) {
+			if(blanckErr) {
+				Logger.error("Error when creating file with lwip" + JSON.stringify(blanckErr));
+			} else {
+
+				lwip.open("http://cdn.the6thscreen.fr/guestbook/background.jpg", function(backgroundErr, backgroundImg) {
+					if(backgroundErr) {
+						Logger.error("Error when retrieving background file with lwip" + JSON.stringify(backgroundErr));
+					} else {
+						blankImage.paste(0, 0, backgroundImg, function(addBackgroundErr, imgWithBackground) {
+							if(addBackgroundErr) {
+								Logger.error("Error when paste background with lwip" + JSON.stringify(addBackgroundErr));
+							} else {
+								var drawContentImg = new Buffer(drawContent, 'base64');
+								lwip.open(drawContentImg, 'png', function(drawContentErr, drawContentLwipImg) {
+									if(drawContentErr) {
+										Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
+									} else {
+										imgWithBackground.paste((1920 - drawContentLwipImg.width()) / 2, (1080 - drawContentLwipImg.height()) / 2, drawContentLwipImg, function(addDrawContentErr, imgWithDrawContent) {
+											if(addDrawContentErr) {
+												Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
+											} else {
+												lwip.open("http://cdn.the6thscreen.fr/guestbook/watermark.png", function(watermarkErr, watermarkImg) {
+													if(watermarkErr) {
+														Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
+													} else {
+														imgWithDrawContent.paste(0, 0, watermarkImg, function(finishErr, finishImg) {
+															if(finishErr) {
+																Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
+															} else {
+																var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + ".png";
+																finishImg.writeFile(newFileUrl, function (errWriteW) {
+																	if (errWriteW) {
+																		Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
+																	} else {
+																		Logger.info("Success writing file ! => " + newFileUrl);
+																	}
+																});
+															}
+														});
+													}
+												});
+											}
+										});
+									}
+								});
+							}
+						});
+					}
+				});
+			}
+		};
+
+		lwip.create(1920, 1080, {r:0, g:0, b:0, a:0}, blankImgCreated);
 
 		/*var activeSession : Session = self.getSessionManager().getActiveSession();
 

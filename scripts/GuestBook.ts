@@ -18,7 +18,7 @@
  */
 class GuestBook extends SourceServer {
 
-
+	static upload_directory : string;
 
     /**
      * Constructor.
@@ -39,6 +39,12 @@ class GuestBook extends SourceServer {
      */
     init() {
         var self = this;
+
+		if (process.env.GUESTBOOK_UPLOAD_DIR == undefined) {
+			GuestBook.upload_directory = "/tmp/uploads";
+		} else {
+			GuestBook.upload_directory = process.env.GUESTBOOK_UPLOAD_DIR;
+		}
 
         this.addNamespace("GuestBook", GuestBookNamespaceManager);
 
