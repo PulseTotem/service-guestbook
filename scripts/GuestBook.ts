@@ -6,6 +6,7 @@
 /// <reference path="../t6s-core/core-backend/scripts/Logger.ts" />
 
 /// <reference path="./GuestBookNamespaceManager.ts" />
+/// <reference path="./GuestBookClientNamespaceManager.ts" />
 
 
 
@@ -40,6 +41,8 @@ class GuestBook extends SourceServer {
         var self = this;
 
         this.addNamespace("GuestBook", GuestBookNamespaceManager);
+
+		this.addNamespace("GuestBookClient", GuestBookClientNamespaceManager);
     }
 }
 
