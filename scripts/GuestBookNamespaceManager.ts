@@ -192,4 +192,16 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
 		self.sendNewInfoToClient(list);
 	}
+
+	/**
+	 * Method called when socket is disconnected.
+	 *
+	 * @method onClientDisconnection
+	 */
+	onClientDisconnection() {
+		super.onClientDisconnection();
+		var self = this;
+		
+		self.getSessionManager().finishActiveSession();
+	}
 }

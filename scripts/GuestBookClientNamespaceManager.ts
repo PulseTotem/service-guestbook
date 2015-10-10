@@ -58,7 +58,6 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 		if(callNamespaceManager == null) {
 			self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId.callSocketId + "' doesn't exist."));
 		} else {
-
 			self._callNamespaceManager = callNamespaceManager;
 
 			var newSession : Session = callNamespaceManager.newSession(self);
@@ -96,9 +95,9 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 			var newDrawContent = drawContent.drawContent;
 
 			self._callNamespaceManager.saveContent(newDrawContent);
-		}
 
-		self._callNamespaceManager.getSessionManager().finishActiveSession();
+			self._callNamespaceManager.getSessionManager().finishActiveSession();
+		}
 	}
 
 	/**
@@ -131,6 +130,12 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	 * @method onClientDisconnection
 	 */
 	onClientDisconnection() {
+		var self = this;
+
 		this.onDisconnection();
+
+		if(self._callNamespaceManager != null) {
+			self._callNamespaceManager.getSessionManager().finishActiveSession();
+		}
 	}
 }
