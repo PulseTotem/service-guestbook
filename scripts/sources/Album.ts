@@ -43,12 +43,12 @@ class Album extends SourceItf {
 			var list : PictureAlbum = new PictureAlbum(uuid.v1());
 
 			if (self._pictures.length > 0) {
-				lodash.shuffle(self._pictures);
+				//lodash.shuffle(self._pictures);
 				var picsForAlbum = new Array<Picture>();
 				if(self._pictures.length > limit) {
-					picsForAlbum = lodash.take(self._pictures, limit);
+					picsForAlbum = lodash.takeRight(self._pictures, limit);
 				} else {
-					picsForAlbum = self._pictures
+					picsForAlbum = self._pictures;
 				}
 				picsForAlbum.forEach( function (pic: Picture) {
 					pic.setDurationToDisplay(parseInt(self.getParams().InfoDuration));
