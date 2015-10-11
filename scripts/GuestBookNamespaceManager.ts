@@ -140,7 +140,8 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 																	if (finishErr) {
 																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
-																		var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + ".png";
+																		var nowMoment = moment().format("YYYY-MM-DD-HH-mm-ss");
+																		var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + nowMoment + ".png";
 																		finishImg.writeFile(newFileUrl, function (errWriteW) {
 																			if (errWriteW) {
 																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
@@ -151,7 +152,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 																					if (errscale) {
 																						Logger.error("Error when writing scale img with lwip" + JSON.stringify(errWriteW));
 																					} else {
-																						var newFileMediumUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + "_medium.png";
+																						var newFileMediumUrl = GuestBook.upload_directory + "/testfdsophia/" + nowMoment + "_medium.png";
 																						finishImgMedium.writeFile(newFileMediumUrl, function (errWriteMediumW) {
 																							if (errWriteMediumW) {
 																								Logger.error("Error when writing medium file with lwip" + JSON.stringify(errWriteMediumW));
