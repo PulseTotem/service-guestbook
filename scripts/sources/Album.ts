@@ -75,15 +75,22 @@ class Album extends SourceItf {
 					var filename = file.substring(indexLastSlash+1);
 					var picturename = filename.substring(0, filename.length - 4);
 
-					var pic : Picture = new Picture(picturename);
-					pic.setTitle("GuestBook #testFDSophia");
+					if(picturename.indexOf("_medium") == -1) {
+						var pic:Picture = new Picture(picturename);
+						pic.setTitle("GuestBook #testFDSophia");
 
-					var picUrlOriginal : PictureURL = new PictureURL(filename);
-					var picUrl = GuestBook.host + "/uploads/testfdsophia/" + filename;
-					picUrlOriginal.setURL(picUrl);
-					pic.setOriginal(picUrlOriginal);
+						var picUrlOriginal:PictureURL = new PictureURL(filename);
+						var picUrl = GuestBook.host + "/uploads/testfdsophia/" + filename;
+						picUrlOriginal.setURL(picUrl);
+						pic.setOriginal(picUrlOriginal);
 
-					self._pictures.push(pic);
+						var picUrlMedium:PictureURL = new PictureURL(picturename + "_medium.png");
+						var picMediumUrl = GuestBook.host + "/uploads/testfdsophia/" + picturename + "_medium.png";
+						picUrlMedium.setURL(picMediumUrl);
+						pic.setMedium(picUrlMedium);
+
+						self._pictures.push(pic);
+					}
 				});
 				successCB();
 			}

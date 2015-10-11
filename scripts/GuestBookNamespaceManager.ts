@@ -117,9 +117,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 								if (addBackgroundErr) {
 									Logger.error("Error when paste background with lwip" + JSON.stringify(addBackgroundErr));
 								} else {
-									Logger.debug(drawContent);
 									var base64DrawContent = drawContent.replace(/^data:image\/png;base64,/, "");
-									Logger.debug(base64DrawContent);
 									var drawContentImg = new Buffer(base64DrawContent, 'base64');
 									lwip.open(drawContentImg, 'png', function (drawContentErr, drawContentLwipImg) {
 										if (drawContentErr) {
@@ -148,6 +146,21 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
 																			} else {
 																				Logger.info("Success writing file ! => " + newFileUrl);
+
+																				finishImg.resize(640, 360, function (errscale, finishImgMedium) {
+																					if (errscale) {
+																						Logger.error("Error when writing scale img with lwip" + JSON.stringify(errWriteW));
+																					} else {
+																						var newFileMediumUrl = GuestBook.upload_directory + "/testfdsophia/" + moment().format("YYYY-MM-DD-HH-mm-ss") + "_medium.png";
+																						finishImgMedium.writeFile(newFileMediumUrl, function (errWriteMediumW) {
+																							if (errWriteMediumW) {
+																								Logger.error("Error when writing medium file with lwip" + JSON.stringify(errWriteMediumW));
+																							} else {
+																								Logger.info("Success writing medium file ! => " + newFileMediumUrl);
+																							}
+																						});
+																					}
+																				});
 																			}
 																		});
 																	}
