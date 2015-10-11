@@ -5,6 +5,7 @@
 /// <reference path="../t6s-core/core-backend/scripts/session/SessionSourceNamespaceManager.ts" />
 
 /// <reference path="./sources/Manager.ts" />
+/// <reference path="./sources/Album.ts" />
 
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/Cmd.ts" />
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/CmdList.ts" />
@@ -30,6 +31,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
     constructor(socket : any) {
         super(socket);
 	    this.addListenerToSocket('Manager', function(params : any, self : GuestBookNamespaceManager) { (new Manager(params, self)) });
+		this.addListenerToSocket('Album', function(params : any, self : GuestBookNamespaceManager) { (new Album(params, self)) });
     }
 
 	/**
