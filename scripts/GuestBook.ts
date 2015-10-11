@@ -19,6 +19,7 @@ var fs : any = require('fs');
  */
 class GuestBook extends SourceServer {
 
+	static host : string;
 	static upload_directory : string;
 
     /**
@@ -41,6 +42,12 @@ class GuestBook extends SourceServer {
     init() {
         var self = this;
 
+		if (process.env.GUESTBOOK_HOST == undefined) {
+			GuestBook.host = "http://localhost:6015";
+		} else {
+			GuestBook.host = process.env.GUESTBOOK_HOST;
+		}
+
 		if (process.env.GUESTBOOK_UPLOAD_DIR == undefined) {
 			GuestBook.upload_directory = "/tmp/uploads";
 		} else {
@@ -50,6 +57,8 @@ class GuestBook extends SourceServer {
         this.addNamespace("GuestBook", GuestBookNamespaceManager);
 
 		this.addNamespace("GuestBookClient", GuestBookClientNamespaceManager);
+
+		this.app.use("/uploads", express.static(GuestBook.upload_directory));
     }
 
 	static downloadFile(url, localpath, callbackSuccess, callbackError) {
