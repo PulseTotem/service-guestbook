@@ -5,8 +5,7 @@
 /// <reference path="../t6s-core/core-backend/scripts/session/SessionSourceNamespaceManager.ts" />
 
 /// <reference path="./sources/Manager.ts" />
-/// <reference path="./sources/Album.ts" />
-
+/// <reference path="./core/GuestbookUtils.ts" />
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/Cmd.ts" />
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/CmdList.ts" />
 /// <reference path="../t6s-core/core-backend/t6s-core/core/scripts/infotype/priorities/InfoPriority.ts" />
@@ -31,7 +30,6 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
     constructor(socket : any) {
         super(socket);
 	    this.addListenerToSocket('Manager', function(params : any, self : GuestBookNamespaceManager) { (new Manager(params, self)) });
-		this.addListenerToSocket('Album', function(params : any, self : GuestBookNamespaceManager) { (new Album(params, self)) });
     }
 
 	/**
@@ -96,6 +94,8 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 	saveContent(drawContent : any) {
 		var self = this;
 
+		var cmsAlbumId : string = self.getParams().CMSAlbumId;
+
 		var blankImgCreated = function(blanckErr, blankImage) {
 			if(blanckErr) {
 				Logger.error("Error when creating file with lwip" + JSON.stringify(blanckErr));
@@ -141,27 +141,24 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
 																		var nowMoment = moment().format("YYYY-MM-DD-HH-mm-ss");
-																		var newFileUrl = GuestBook.upload_directory + "/testfdsophia/" + nowMoment + ".png";
+																		var imgName = + nowMoment + ".png";
+																		var newFileUrl = GuestBook.upload_directory + "/"+imgName;
 																		finishImg.writeFile(newFileUrl, function (errWriteW) {
 																			if (errWriteW) {
 																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
 																			} else {
 																				Logger.info("Success writing file ! => " + newFileUrl);
 
-																				finishImg.resize(640, 360, function (errscale, finishImgMedium) {
-																					if (errscale) {
-																						Logger.error("Error when writing scale img with lwip" + JSON.stringify(errWriteW));
-																					} else {
-																						var newFileMediumUrl = GuestBook.upload_directory + "/testfdsophia/" + nowMoment + "_medium.png";
-																						finishImgMedium.writeFile(newFileMediumUrl, function (errWriteMediumW) {
-																							if (errWriteMediumW) {
-																								Logger.error("Error when writing medium file with lwip" + JSON.stringify(errWriteMediumW));
-																							} else {
-																								Logger.info("Success writing medium file ! => " + newFileMediumUrl);
-																							}
-																						});
-																					}
-																				});
+																				var successPostCMS = function () {
+																					Logger.info("Success to post to CMS");
+																				};
+
+																				var failPostToCMS = function (err) {
+																					Logger.error("Error while posting pics to CMS");
+																					Logger.debug(err);
+																				};
+
+																				GuestbookUtils.postPictureToCMS(newFileUrl, imgName, "Guestbook at "+nowMoment.toString(), cmsAlbumId, successPostCMS, failPostToCMS);
 																			}
 																		});
 																	}
