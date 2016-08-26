@@ -149,8 +149,8 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
 																		var nowMoment = moment().format("YYYY-MM-DD-HH-mm-ss");
-																		var imgName = +nowMoment + ".png";
-																		var newFileUrl = GuestBook.upload_directory + "/" + imgName;
+																		var imgName = nowMoment + ".png";
+																		var newFileUrl = "/tmp/"+imgName;
 																		finishImg.writeFile(newFileUrl, function (errWriteW) {
 																			if (errWriteW) {
 																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
