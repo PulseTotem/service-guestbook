@@ -104,75 +104,82 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 		var logoLeftURL = self.getParams().LogoLeftURL;
 		var logoRightURL = self.getParams().LogoRightURL;
 
-		var localBackground = "/tmp/gb_bg_"+uuid.v1()+".png";
+		var localBackground = "/tmp/gb_bg_"+uuid.v1();
+		var backgroundExtension;
 
 		var failDownloadBackground = function (error) {
 			Logger.error("Error when retrieving the background picture. Error: "+JSON.stringify(error));
 		};
 
 		var successDownloadBackground = function () {
-
-			lwip.open(localBackground, function (backgroundErr, backgroundImg) {
-				if (backgroundErr) {
-					Logger.error("Error when retrieving background file with lwip" + JSON.stringify(backgroundErr));
+			mime.lookup(localBackground, function(errSniffMimeLocalBackground, infoLocalBackground: any) {
+				if (errSniffMimeLocalBackground) {
+					Logger.error("Error when detecting mimetype of background: " + JSON.stringify(errSniffMimeLocalBackground));
 				} else {
-					backgroundImg.resize(imgWidth, imgHeight, "linear", function (resizeBackgroundError, imgWithBackground) {
-						if (resizeBackgroundError) {
-							Logger.error("Error when resizing background with lwip" + JSON.stringify(resizeBackgroundError));
+					backgroundExtension = infoLocalBackground.extension;
+					lwip.open(localBackground, backgroundExtension, function (backgroundErr, backgroundImg) {
+						if (backgroundErr) {
+							Logger.error("Error when retrieving background file with lwip" + JSON.stringify(backgroundErr));
 						} else {
-							var base64DrawContent = drawContent.replace(/^data:image\/png;base64,/, "");
-							var drawContentImg = new Buffer(base64DrawContent, 'base64');
-							lwip.open(drawContentImg, 'png', function (drawContentErr, drawContentLwipImg) {
-								if (drawContentErr) {
-									Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
+							backgroundImg.resize(imgWidth, imgHeight, "linear", function (resizeBackgroundError, imgWithBackground) {
+								if (resizeBackgroundError) {
+									Logger.error("Error when resizing background with lwip" + JSON.stringify(resizeBackgroundError));
 								} else {
-									imgWithBackground.paste((1920 - drawContentLwipImg.width()) / 2, (1080 - drawContentLwipImg.height()) / 2, drawContentLwipImg, function (addDrawContentErr, imgWithDrawContent) {
-										if (addDrawContentErr) {
-											Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
+									var base64DrawContent = drawContent.replace(/^data:image\/png;base64,/, "");
+									var drawContentImg = new Buffer(base64DrawContent, 'base64');
+									lwip.open(drawContentImg, 'png', function (drawContentErr, drawContentLwipImg) {
+										if (drawContentErr) {
+											Logger.error("Error when opening drawContent file with lwip" + JSON.stringify(drawContentErr));
 										} else {
-											var failCreateWatermark = function (error) {
-												Logger.error("Error when retrieving the watermark picture. Error: "+JSON.stringify(error));
-											};
+											imgWithBackground.paste((1920 - drawContentLwipImg.width()) / 2, (1080 - drawContentLwipImg.height()) / 2, drawContentLwipImg, function (addDrawContentErr, imgWithDrawContent) {
+												if (addDrawContentErr) {
+													Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
+												} else {
+													var failCreateWatermark = function (error) {
+														Logger.error("Error when retrieving the watermark picture. Error: " + JSON.stringify(error));
+													};
 
-											var successCreateWatermark = function(localWatermark) {
-												lwip.open(localWatermark, function (watermarkErr, watermarkImg) {
-													if (watermarkErr) {
-														Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
-													} else {
-														imgWithDrawContent.paste(0, 0, watermarkImg, function (finishErr, finishImg) {
-															if (finishErr) {
-																Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
+													var successCreateWatermark = function (localWatermark) {
+														lwip.open(localWatermark, function (watermarkErr, watermarkImg) {
+															if (watermarkErr) {
+																Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
 															} else {
-																var nowMoment = moment().format("YYYY-MM-DD-HH-mm-ss");
-																var imgName = + nowMoment + ".png";
-																var newFileUrl = GuestBook.upload_directory + "/"+imgName;
-																finishImg.writeFile(newFileUrl, function (errWriteW) {
-																	if (errWriteW) {
-																		Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
+																imgWithDrawContent.paste(0, 0, watermarkImg, function (finishErr, finishImg) {
+																	if (finishErr) {
+																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
-																		Logger.info("Success writing file ! => " + newFileUrl);
+																		var nowMoment = moment().format("YYYY-MM-DD-HH-mm-ss");
+																		var imgName = +nowMoment + ".png";
+																		var newFileUrl = GuestBook.upload_directory + "/" + imgName;
+																		finishImg.writeFile(newFileUrl, function (errWriteW) {
+																			if (errWriteW) {
+																				Logger.error("Error when writing file with lwip" + JSON.stringify(errWriteW));
+																			} else {
+																				Logger.info("Success writing file ! => " + newFileUrl);
 
-																		var successPostCMS = function () {
-																			Logger.info("Success to post to CMS");
-																		};
+																				var successPostCMS = function () {
+																					Logger.info("Success to post to CMS");
+																				};
 
-																		var failPostToCMS = function (err) {
-																			Logger.error("Error while posting pics to CMS");
-																			Logger.debug(err);
-																		};
+																				var failPostToCMS = function (err) {
+																					Logger.error("Error while posting pics to CMS");
+																					Logger.debug(err);
+																				};
 
-																		GuestbookUtils.postPictureToCMS(newFileUrl, imgName, "Guestbook at "+nowMoment.toString(), cmsAlbumId, successPostCMS, failPostToCMS);
+																				GuestbookUtils.postPictureToCMS(newFileUrl, imgName, "Guestbook at " + nowMoment.toString(), cmsAlbumId, successPostCMS, failPostToCMS);
+																			}
+																		});
 																	}
 																});
 															}
 														});
-													}
-												});
-											};
+													};
 
-											var watermarkWidth = imgWidth;
-											var watermarkHeight = 0.1 * imgHeight;
-											self.createWatermark(watermarkWidth, watermarkHeight, logoLeftURL, logoRightURL, successCreateWatermark, failCreateWatermark);
+													var watermarkWidth = imgWidth;
+													var watermarkHeight = 0.1 * imgHeight;
+													self.createWatermark(watermarkWidth, watermarkHeight, logoLeftURL, logoRightURL, successCreateWatermark, failCreateWatermark);
+												}
+											});
 										}
 									});
 								}
