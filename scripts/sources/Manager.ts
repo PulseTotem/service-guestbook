@@ -23,7 +23,8 @@ class Manager extends SourceItf {
 	constructor(params : any, guestBookNamespaceManager : GuestBookNamespaceManager) {
 		super(params, guestBookNamespaceManager);
 
-		if (this.checkParams(["InfoDuration", "Limit", "CMSAlbumId"])) {
+		if (this.checkParams(["InfoDuration", "Limit", "CMSAlbumId","LogoLeftURL","BackgroundURL"])) {
+			guestBookNamespaceManager.setParams(params);
 			this.run();
 		}
 	}

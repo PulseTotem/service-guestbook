@@ -60,16 +60,6 @@ class GuestBook extends SourceServer {
 
 		this.app.use("/uploads", express.static(GuestBook.upload_directory));
     }
-
-	static downloadFile(url, localpath, callbackSuccess, callbackError) {
-		request.head(url, function(err, res, body){
-			if (err) {
-				callbackError(err);
-			} else {
-				request(url).pipe(fs.createWriteStream(localpath)).on('close', callbackSuccess);
-			}
-		});
-	}
 }
 
 /**

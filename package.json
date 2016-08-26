@@ -22,6 +22,7 @@
   "dependencies": {
     "lwip": "0.0.7",
     "request": "2.60.0",
-    "lodash": "3.10.1"
+    "lodash": "3.10.1",
+    "mime-sniffer": "0.0.3"
   }
 }
