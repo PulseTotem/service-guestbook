@@ -63,6 +63,9 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 			var newSession : Session = callNamespaceManager.newSession(self);
 
 			self.socket.emit("ControlSession", self.formatResponse(true, newSession));
+
+			var backgroundInfo = { "backgroundURL": this._callNamespaceManager.getParams().BackgroundURL };
+			self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
 		}
 	}
 
