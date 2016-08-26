@@ -23,7 +23,7 @@ class Manager extends SourceItf {
 	constructor(params : any, guestBookNamespaceManager : GuestBookNamespaceManager) {
 		super(params, guestBookNamespaceManager);
 
-		if (this.checkParams(["InfoDuration", "Limit", "CMSAlbumId","LogoLeftURL","BackgroundURL"])) {
+		if (this.checkParams(["InfoDuration", "Limit", "CMSAlbumId", "AppliURL","LogoLeftURL","BackgroundURL"])) {
 			guestBookNamespaceManager.setParams(params);
 			this.run();
 		}
@@ -40,6 +40,8 @@ class Manager extends SourceItf {
 		cmd.setCmd("Wait");
 		var args : Array<string> = new Array<string>();
 		args.push(this.getSourceNamespaceManager().socket.id);
+		args.push(this.getParams().AppliURL);
+		args.push(this.getParams().BackgroundURL);
 		cmd.setArgs(args);
 
 		var list : CmdList = new CmdList(uuid.v1());

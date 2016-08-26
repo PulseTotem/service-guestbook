@@ -49,6 +49,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 		var args : Array<string> = new Array<string>();
 		args.push(self.socket.id);
 		args.push(JSON.stringify(session));
+		args.push(this.getParams().BackgroundURL);
 		cmd.setArgs(args);
 
 		var list : CmdList = new CmdList(session.id());
