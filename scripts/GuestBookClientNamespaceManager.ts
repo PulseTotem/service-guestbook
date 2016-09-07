@@ -28,6 +28,14 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	private _callNamespaceManager : GuestBookNamespaceManager;
 
 	/**
+	 * Guestbook Client 's ProfilId
+	 *
+	 * @property _profilId
+	 * @type string
+	 */
+	private _profilId : string;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -42,6 +50,7 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 		this.addListenerToSocket('NewContent', function(drawContent : any, self : GuestBookClientNamespaceManager) { self.drawContent(drawContent); });
 		this.addListenerToSocket('SaveContent', function(drawContent : any, self : GuestBookClientNamespaceManager) { self.saveContent(drawContent); });
 
+		this.addListenerToSocket('SetProfilId', function(profilId : any, self : GuestBookClientNamespaceManager) { self.setProfilId(profilId); });
 	}
 
 	/**
@@ -53,19 +62,26 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	takeControl(callSocketId : any) {
 		var self = this;
 
-		var callNamespaceManager = self.server().retrieveNamespaceManagerFromSocketId(callSocketId.callSocketId);
+		if(callSocketId.callSocketId != null) {
 
-		if(callNamespaceManager == null) {
-			self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId.callSocketId + "' doesn't exist."));
+			var callNamespaceManager = self.server().retrieveNamespaceManagerFromSocketId(callSocketId.callSocketId);
+
+			if (callNamespaceManager == null) {
+				self.socket.emit("ControlSession", self.formatResponse(false, "NamespaceManager corresponding to callSocketid '" + callSocketId.callSocketId + "' doesn't exist."));
+			} else {
+				self._callNamespaceManager = callNamespaceManager;
+
+				var newSession:Session = callNamespaceManager.newSession(self);
+
+				self.socket.emit("ControlSession", self.formatResponse(true, newSession));
+
+				var backgroundInfo = {"backgroundURL": this._callNamespaceManager.getParams().BackgroundURL};
+				self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
+			}
 		} else {
-			self._callNamespaceManager = callNamespaceManager;
+			self.lockControl(null);
 
-			var newSession : Session = callNamespaceManager.newSession(self);
-
-			self.socket.emit("ControlSession", self.formatResponse(true, newSession));
-
-			var backgroundInfo = { "backgroundURL": this._callNamespaceManager.getParams().BackgroundURL };
-			self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
+			self.broadcastToAllScreens("lockControl", null);
 		}
 	}
 
@@ -78,10 +94,12 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	drawContent(drawContent : any) {
 		var self = this;
 
-		if(self._callNamespaceManager != null) {
-			var newDrawContent = drawContent.drawContent;
+		var newDrawContent = drawContent.drawContent;
 
+		if(self._callNamespaceManager != null) {
 			self._callNamespaceManager.newDrawContent(newDrawContent);
+		} else {
+			self.broadcastToAllScreens("newDrawContent", newDrawContent);
 		}
 	}
 
@@ -94,12 +112,18 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	saveContent(drawContent : any) {
 		var self = this;
 
-		if(self._callNamespaceManager != null) {
-			var newDrawContent = drawContent.drawContent;
+		var newDrawContent = drawContent.drawContent;
 
+		if(self._callNamespaceManager != null) {
 			self._callNamespaceManager.saveContent(newDrawContent);
 
 			self._callNamespaceManager.getSessionManager().finishActiveSession();
+		} else {
+			self.broadcastToAllScreens("saveContent", newDrawContent, true);
+
+			self.unlockControl(null);
+
+			self.broadcastToAllScreens("unlockControl", null);
 		}
 	}
 
@@ -125,6 +149,44 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 		var self = this;
 
 		self.socket.emit("UnlockedControl", self.formatResponse(true, session));
+	}
+
+	/**
+	 * Method called to broadcast message to screen with specified profilId.
+	 *
+	 * @method broadcastToAllScreens
+	 * @param {string} cmd - cmd description
+	 * @param {any} content - cmd argument
+	 * @param {boolean} blockToFirst - send message to first screen and stop
+	 */
+	broadcastToAllScreens(cmd : string, content : any, blockToFirst : boolean = false) {
+		var self = this;
+
+		var sendDone : boolean = false;
+
+		for(var iNM in self.server().namespaceManagers) {
+			if(! blockToFirst || ! sendDone) {
+				var namespaceManager:any = self.server().namespaceManagers[iNM];
+				if (typeof(namespaceManager["getParams"]) != "undefined") {
+					var params:any = namespaceManager.getParams();
+
+					if (params.SDI.profilId == parseInt(self._profilId)) {
+						namespaceManager.onExternalMessage(cmd, content);
+						sendDone = true;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Set the client profilId..
+	 *
+	 * @method setProfilId
+	 * @param {Object} profilId - A JSON object with profil's Id.
+	 */
+	setProfilId(profilIdObj : any) {
+		this._profilId = profilIdObj.profilId;
 	}
 
 	/**

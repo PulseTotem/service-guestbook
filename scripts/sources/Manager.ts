@@ -35,18 +35,25 @@ class Manager extends SourceItf {
 	 * @method run
 	 */
 	public run() {
-		var cmd : Cmd = new Cmd(uuid.v1());
-		cmd.setDurationToDisplay(parseInt(this.getParams().InfoDuration));
-		cmd.setCmd("Wait");
-		var args : Array<string> = new Array<string>();
-		args.push(this.getSourceNamespaceManager().socket.id);
-		args.push(this.getParams().AppliURL);
-		args.push(this.getParams().BackgroundURL);
-		cmd.setArgs(args);
+		var guestBookNamespaceManager : any = this.getSourceNamespaceManager();
 
-		var list : CmdList = new CmdList(uuid.v1());
-		list.addCmd(cmd);
+		if(guestBookNamespaceManager.getCmdId() == null) {
+			var cmdId = uuid.v1();
+			guestBookNamespaceManager.setCmdId(cmdId);
 
-		this.getSourceNamespaceManager().sendNewInfoToClient(list);
+			var cmd:Cmd = new Cmd(cmdId);
+			cmd.setDurationToDisplay(parseInt(this.getParams().InfoDuration));
+			cmd.setCmd("Wait");
+			var args:Array<string> = new Array<string>();
+			args.push(this.getSourceNamespaceManager().socket.id);
+			args.push(this.getParams().AppliURL);
+			args.push(this.getParams().BackgroundURL);
+			cmd.setArgs(args);
+
+			var list:CmdList = new CmdList(cmdId);
+			list.addCmd(cmd);
+
+			this.getSourceNamespaceManager().sendNewInfoToClient(list);
+		}
 	}
 }
