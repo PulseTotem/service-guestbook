@@ -22,6 +22,14 @@ var mime = require('mime-sniffer');
  */
 class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
+	/**
+	 * CmdId
+	 *
+	 * @property _cmdId
+	 * @type string
+	 */
+	private _cmdId : string;
+
     /**
      * Constructor.
      *
@@ -30,8 +38,53 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
      */
     constructor(socket : any) {
         super(socket);
+		this._cmdId = null;
 	    this.addListenerToSocket('Manager', function(params : any, self : GuestBookNamespaceManager) { (new Manager(params, self)) });
     }
+
+	/**
+	 * Set the cmdId.
+	 *
+	 * @method setCmdId
+	 * @param {string} cmdId - Cmd's Id.
+	 */
+	setCmdId(cmdId : string) {
+		this._cmdId = cmdId;
+	}
+
+	/**
+	 * Return the cmdId.
+	 *
+	 * @method getCmdId
+	 */
+	getCmdId() {
+		return this._cmdId;
+	}
+
+	/**
+	 * Method called when external message come (from API Endpoints for example).
+	 *
+	 * @method onExternalMessage
+	 * @param {string} from - Source description of message
+	 * @param {any} message - Received message
+	 */
+	onExternalMessage(from : string, message : any) {
+		if(from == "lockControl") {
+			this.lockControl(null);
+		}
+
+		if(from == "newDrawContent") {
+			this.newDrawContent(message);
+		}
+
+		if(from == "saveContent") {
+			this.saveContent(message);
+		}
+
+		if(from == "unlockControl") {
+			this.unlockControl(null);
+		}
+	}
 
 	/**
 	 * Lock the control of the Screen for the Session in param.
@@ -42,20 +95,29 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 	lockControl(session : Session) {
 		var self = this;
 
-		var cmd : Cmd = new Cmd(session.id());
-		cmd.setPriority(InfoPriority.HIGH);
-		cmd.setDurationToDisplay(3600);
-		cmd.setCmd("StartSession");
-		var args : Array<string> = new Array<string>();
-		args.push(self.socket.id);
-		args.push(JSON.stringify(session));
-		args.push(this.getParams().BackgroundURL);
-		cmd.setArgs(args);
+		var cmdId = null;
+		if(session != null) {
+			cmdId = session.id();
+		} else {
+			cmdId = this._cmdId;
+		}
 
-		var list : CmdList = new CmdList(session.id());
-		list.addCmd(cmd);
+		if(cmdId != null) {
+			var cmd:Cmd = new Cmd(cmdId);
+			cmd.setPriority(InfoPriority.HIGH);
+			cmd.setDurationToDisplay(3600);
+			cmd.setCmd("StartSession");
+			var args:Array<string> = new Array<string>();
+			args.push(self.socket.id);
+			args.push(JSON.stringify(session));
+			args.push(this.getParams().BackgroundURL);
+			cmd.setArgs(args);
 
-		self.sendNewInfoToClient(list);
+			var list:CmdList = new CmdList(cmdId);
+			list.addCmd(cmd);
+
+			self.sendNewInfoToClient(list);
+		}
 	}
 
 	/**
@@ -69,8 +131,15 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
 		var activeSession : Session = self.getSessionManager().getActiveSession();
 
+		var cmdId = null;
 		if(activeSession != null) {
-			var cmd:Cmd = new Cmd(activeSession.id());
+			cmdId = activeSession.id();
+		} else {
+			cmdId = this._cmdId;
+		}
+
+		if(cmdId != null) {
+			var cmd:Cmd = new Cmd(cmdId);
 			cmd.setPriority(InfoPriority.HIGH);
 			cmd.setDurationToDisplay(3600);
 			cmd.setCmd("NewDrawContent");
@@ -80,7 +149,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 			args.push(drawContent);
 			cmd.setArgs(args);
 
-			var list:CmdList = new CmdList(activeSession.id());
+			var list:CmdList = new CmdList(cmdId);
 			list.addCmd(cmd);
 
 			self.sendNewInfoToClient(list);
@@ -418,19 +487,28 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 	unlockControl(session : Session) {
 		var self = this;
 
-		var cmd : Cmd = new Cmd(session.id());
-		cmd.setPriority(InfoPriority.HIGH);
-		cmd.setDurationToDisplay(3);
-		cmd.setCmd("FinishSession");
-		var args : Array<string> = new Array<string>();
-		args.push(self.socket.id);
-		args.push(JSON.stringify(session));
-		cmd.setArgs(args);
+		var cmdId = null;
+		if(session != null) {
+			cmdId = session.id();
+		} else {
+			cmdId = this._cmdId;
+		}
 
-		var list : CmdList = new CmdList(session.id());
-		list.addCmd(cmd);
+		if(cmdId != null) {
+			var cmd:Cmd = new Cmd(cmdId);
+			cmd.setPriority(InfoPriority.HIGH);
+			cmd.setDurationToDisplay(3);
+			cmd.setCmd("FinishSession");
+			var args:Array<string> = new Array<string>();
+			args.push(self.socket.id);
+			args.push(JSON.stringify(session));
+			cmd.setArgs(args);
 
-		self.sendNewInfoToClient(list);
+			var list:CmdList = new CmdList(cmdId);
+			list.addCmd(cmd);
+
+			self.sendNewInfoToClient(list);
+		}
 	}
 
 	/**
