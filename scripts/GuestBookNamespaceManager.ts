@@ -204,6 +204,9 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 												if (addDrawContentErr) {
 													Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
 												} else {
+													var watermarkWidth = imgWidth;
+													var watermarkHeight = 0.075 * imgHeight;
+													
 													var failCreateWatermark = function (error) {
 														Logger.error("Error when retrieving the watermark picture. Error: " + JSON.stringify(error));
 													};
@@ -213,7 +216,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 															if (watermarkErr) {
 																Logger.error("Error when opening watermarkErr with lwip" + JSON.stringify(watermarkErr));
 															} else {
-																imgWithDrawContent.paste(0, 0, watermarkImg, function (finishErr, finishImg) {
+																imgWithDrawContent.paste(0, (imgWithDrawContent.height() - watermarkImg.height()), watermarkImg, function (finishErr, finishImg) {
 																	if (finishErr) {
 																		Logger.error("Error when pasting watermark with lwip" + JSON.stringify(finishErr));
 																	} else {
@@ -244,8 +247,6 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 														});
 													};
 
-													var watermarkWidth = imgWidth;
-													var watermarkHeight = 0.1 * imgHeight;
 													self.createWatermark(watermarkWidth, watermarkHeight, logoLeftURL, logoRightURL, successCreateWatermark, failCreateWatermark);
 												}
 											});

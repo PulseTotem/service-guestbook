@@ -82,6 +82,9 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 			self.lockControl(null);
 
 			self.broadcastToAllScreens("lockControl", null);
+
+			var backgroundInfo = {"backgroundURL": this._callNamespaceManager.getParams().BackgroundURL};
+			self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
 		}
 	}
 
