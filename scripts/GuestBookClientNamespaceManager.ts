@@ -83,8 +83,12 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 
 			self.broadcastToAllScreens("lockControl", null);
 
-			var backgroundInfo = {"backgroundURL": this._callNamespaceManager.getParams().BackgroundURL};
-			self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
+			var firstCallNamespaceManager : any = self.getFirstSourceCallNamespace();
+
+			if(firstCallNamespaceManager != null) {
+				var backgroundInfo = {"backgroundURL": firstCallNamespaceManager.getParams().BackgroundURL};
+				self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
+			}
 		}
 	}
 
@@ -180,6 +184,26 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 				}
 			}
 		}
+	}
+
+	/**
+	 * Return first found call namespace or null.
+	 *
+	 * @method getFirstSourceCallNamespace
+	 */
+	getFirstSourceCallNamespace() {
+		var self = this;
+
+		var firstCallNamespaceManager = null;
+
+		for(var iNM in self.server().namespaceManagers) {
+			var namespaceManager:any = self.server().namespaceManagers[iNM];
+			if (typeof(namespaceManager["getParams"]) != "undefined") {
+				firstCallNamespaceManager = namespaceManager;
+			}
+		}
+
+		return firstCallNamespaceManager;
 	}
 
 	/**
