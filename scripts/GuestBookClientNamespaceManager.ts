@@ -82,13 +82,6 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 			self.lockControl(null);
 
 			self.broadcastToAllScreens("lockControl", null);
-
-			var firstCallNamespaceManager : any = self.getFirstSourceCallNamespace();
-
-			if(firstCallNamespaceManager != null) {
-				var backgroundInfo = {"backgroundURL": firstCallNamespaceManager.getParams().BackgroundURL};
-				self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
-			}
 		}
 	}
 
@@ -213,7 +206,16 @@ class GuestBookClientNamespaceManager extends NamespaceManager implements Sessio
 	 * @param {Object} profilId - A JSON object with profil's Id.
 	 */
 	setProfilId(profilIdObj : any) {
+		var self = this;
+		
 		this._profilId = profilIdObj.profilId;
+
+		var firstCallNamespaceManager : any = self.getFirstSourceCallNamespace();
+
+		if(firstCallNamespaceManager != null) {
+			var backgroundInfo = {"backgroundURL": firstCallNamespaceManager.getParams().BackgroundURL};
+			self.socket.emit("SetBackground", self.formatResponse(true, backgroundInfo));
+		}
 	}
 
 	/**

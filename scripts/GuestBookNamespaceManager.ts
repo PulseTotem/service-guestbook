@@ -205,7 +205,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 													Logger.error("Error when pasting drawContent with lwip" + JSON.stringify(addDrawContentErr));
 												} else {
 													var watermarkWidth = imgWidth;
-													var watermarkHeight = 0.075 * imgHeight;
+													var watermarkHeight = 0.06 * imgHeight;
 													
 													var failCreateWatermark = function (error) {
 														Logger.error("Error when retrieving the watermark picture. Error: " + JSON.stringify(error));
