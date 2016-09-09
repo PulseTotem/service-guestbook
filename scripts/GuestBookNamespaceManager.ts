@@ -510,6 +510,24 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 
 			self.sendNewInfoToClient(list);
 		}
+
+		if(session == null) {
+			setTimeout(function() {
+				var cmd:Cmd = new Cmd(cmdId);
+				cmd.setPriority(InfoPriority.HIGH);
+				cmd.setDurationToDisplay(0);
+				cmd.setCmd("FinishSession");
+				var args:Array<string> = new Array<string>();
+				args.push(self.socket.id);
+				args.push(JSON.stringify(session));
+				cmd.setArgs(args);
+
+				var list:CmdList = new CmdList(cmdId);
+				list.addCmd(cmd);
+
+				self.sendNewInfoToClient(list);
+			}, 3000);
+		}
 	}
 
 	/**
