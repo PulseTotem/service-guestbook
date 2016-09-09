@@ -514,7 +514,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 		if(session == null) {
 			setTimeout(function() {
 				var cmd:Cmd = new Cmd(cmdId);
-				cmd.setPriority(InfoPriority.HIGH);
+				cmd.setPriority(InfoPriority.LOW);
 				cmd.setDurationToDisplay(0);
 				cmd.setCmd("FinishSession");
 				var args:Array<string> = new Array<string>();
@@ -526,6 +526,22 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 				list.addCmd(cmd);
 
 				self.sendNewInfoToClient(list);
+
+				setTimeout(function() {
+					var cmd:Cmd = new Cmd(cmdId);
+					cmd.setDurationToDisplay(parseInt(self.getParams().InfoDuration));
+					cmd.setCmd("Wait");
+					var args:Array<string> = new Array<string>();
+					args.push(self.socket.id);
+					args.push(self.getParams().AppliURL);
+					args.push(self.getParams().BackgroundURL);
+					cmd.setArgs(args);
+
+					var list:CmdList = new CmdList(cmdId);
+					list.addCmd(cmd);
+
+					self.sendNewInfoToClient(list);
+				}, 500);
 			}, 3000);
 		}
 	}
