@@ -292,7 +292,7 @@ class GuestBookNamespaceManager extends SessionSourceNamespaceManager {
 		var leftExtension;
 		var rightExtension;
 
-		var borderPixel = 4;
+		var borderPixel = 0;
 
 		var counterDownload = 0;
 		var downloadLimit = 2;
